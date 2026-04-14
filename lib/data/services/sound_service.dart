@@ -9,30 +9,26 @@ class SoundService {
   final AudioPlayer _player = AudioPlayer();
   bool _isMuted = false;
 
-  // Звуковые эффекты - в реальном проекте добавьте файлы в assets
+  // Пути к звукам (без префикса assets/, так как AssetSource добавляет его сам)
   static const String _successSound = 'sounds/success.mp3';
   static const String _xpSound = 'sounds/xp.mp3';
   static const String _completeSound = 'sounds/complete.mp3';
   static const String _clickSound = 'sounds/click.mp3';
 
-  bool get isMuted => _isMuted;
-
   void toggleMute() {
     _isMuted = !_isMuted;
-    debugPrint('Sound muted: $_isMuted');
+    debugPrint('Sound service: ${_isMuted ? 'Muted' : 'Unmuted'}');
   }
 
   Future<void> _playSound(String path) async {
     if (_isMuted) return;
     try {
-      // На вебе проверяем наличие файла перед проигрыванием, чтобы не спамить 404
-      // Но самый простой способ - просто поймать ошибку и не выводить её как критическую
+      // Для веба на GitHub Pages важно поймать 404, чтобы не вешать приложение
       await _player.play(AssetSource(path)).catchError((e) {
-        // Молча игнорируем 404 на вебе
         return null;
       });
     } catch (e) {
-      // Игнорируем
+      // Игнорируем ошибки отсутствующих файлов
     }
   }
 
