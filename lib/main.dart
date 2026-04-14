@@ -31,6 +31,8 @@ void main() async {
   }
   
   await GamificationService.init();
+  await StorageService.init();
+  await SubscriptionService().init();
   
   runApp(const NeuroApp());
 }
