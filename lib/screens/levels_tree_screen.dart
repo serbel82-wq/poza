@@ -1163,15 +1163,15 @@ class _LessonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLocked = !widget.isAvailable && !widget.isCompleted;
-    final color = isLocked ? Colors.grey : (widget.isCompleted ? Colors.green : widget.lessonColor);
+    final isLocked = !isAvailable && !isCompleted;
+    final color = isLocked ? Colors.grey : (isCompleted ? Colors.green : lessonColor);
 
     return Column(
       children: [
         GestureDetector(
-          onTap: (widget.isAvailable || widget.isCompleted) ? widget.onTap : null,
+          onTap: (isAvailable || isCompleted) ? onTap : null,
           child: FloatingWidget(
-            animate: widget.isAvailable && !widget.isCompleted,
+            animate: isAvailable && !isCompleted,
             floatDistance: 8,
             child: Container(
               width: 100,
@@ -1201,7 +1201,7 @@ class _LessonCard extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  if (widget.isCompleted)
+                  if (isCompleted)
                     const Positioned(
                       right: 0,
                       top: 0,
@@ -1212,7 +1212,7 @@ class _LessonCard extends StatelessWidget {
                       ),
                     ),
                   Icon(
-                    isLocked ? Icons.lock_outline : widget.iconData,
+                    isLocked ? Icons.lock_outline : iconData,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -1226,7 +1226,7 @@ class _LessonCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        'Урок ${widget.index}',
+                        'Урок ${index}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
