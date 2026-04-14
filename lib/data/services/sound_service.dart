@@ -22,41 +22,20 @@ class SoundService {
     debugPrint('Sound muted: $_isMuted');
   }
 
-  Future<void> playSuccess() async {
+  Future<void> _playSound(String path) async {
     if (_isMuted) return;
     try {
-      await _player.play(AssetSource(_successSound));
+      // На вебе AudioPlayers может выдавать ошибку, если файл не найден или формат не поддерживается
+      await _player.play(AssetSource(path));
     } catch (e) {
-      debugPrint('Sound not found (optional): $e');
+      debugPrint('Sound playing skipped: $path. Error: $e');
     }
   }
 
-  Future<void> playXP() async {
-    if (_isMuted) return;
-    try {
-      await _player.play(AssetSource(_xpSound));
-    } catch (e) {
-      debugPrint('Sound not found (optional): $e');
-    }
-  }
-
-  Future<void> playComplete() async {
-    if (_isMuted) return;
-    try {
-      await _player.play(AssetSource(_completeSound));
-    } catch (e) {
-      debugPrint('Sound not found (optional): $e');
-    }
-  }
-
-  Future<void> playClick() async {
-    if (_isMuted) return;
-    try {
-      await _player.play(AssetSource(_clickSound));
-    } catch (e) {
-      debugPrint('Sound not found (optional): $e');
-    }
-  }
+  Future<void> playSuccess() async => _playSound(_successSound);
+  Future<void> playXP() async => _playSound(_xpSound);
+  Future<void> playComplete() async => _playSound(_completeSound);
+  Future<void> playClick() async => _playSound(_clickSound);
 
   void dispose() {
     _player.dispose();
