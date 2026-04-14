@@ -434,16 +434,48 @@ class _TaskWidgetState extends State<TaskWidget> {
   }
 
   Widget _buildTextInput() {
-    return TextField(
-      controller: _textController,
-      maxLines: 4,
-      decoration: InputDecoration(
-        hintText: 'Введи свой ответ здесь...',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _textController,
+          maxLines: 4,
+          onChanged: (val) => setState(() {}),
+          decoration: InputDecoration(
+            hintText: 'Введи свой ответ здесь...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
         ),
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: _textController.text.length < 5 || _showResults ? null : _submitPractice,
+          icon: _showResults ? const Icon(Icons.done_all) : const Icon(Icons.send),
+          label: Text(_showResults ? 'ОТПРАВЛЕНО' : 'ОТПРАВИТЬ НА ПРОВЕРКУ ИИ'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _showResults ? Colors.green : const Color(0xFF6C63FF),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _submitPractice() async {
+    setState(() => _showResults = true);
+    widget.onAnswered?.call([_textController.text]);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('🚀 Твой ответ принят! ИИ-помощник уже анализирует твои успехи.'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
     );
   }
