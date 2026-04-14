@@ -478,6 +478,31 @@ class _LessonScreenState extends State<LessonScreen> {
     );
   }
 
+  Widget _buildTasksPage() {
+    final lessonColors = [
+      Colors.blue, Colors.purple, Colors.orange, Colors.teal,
+      Colors.red, Colors.green, Colors.indigo, Colors.pink,
+    ];
+    final lessonColor = lessonColors[(_lesson!.id - 1) % lessonColors.length];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          ..._lesson!.tasks.map((task) => TaskWidget(
+            task: task,
+            onAnswered: (answers) => _handleTaskAnswered(task),
+          )).toList(),
+        ],
+      ),
+    );
+  }
+
+  IconData _getLessonIcon(int id) {
+    final icons = [Icons.school, Icons.psychology, Icons.edit_note, Icons.image, Icons.fact_check, Icons.security, Icons.menu_book, Icons.smart_toy];
+    return icons[(id - 1) % icons.length];
+  }
+
   Widget _buildCompletionPage() {
     final lessonColors = [
       Colors.blue,

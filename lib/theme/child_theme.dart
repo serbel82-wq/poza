@@ -32,7 +32,7 @@ class ChildTheme {
           height: 1.4,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
@@ -74,7 +74,7 @@ class ChildTheme {
         tertiary: accentColor,
         surface: const Color(0xFF0D1B2A),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),

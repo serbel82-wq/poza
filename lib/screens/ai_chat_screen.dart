@@ -7,7 +7,7 @@ class AIChatFullScreen extends StatefulWidget {
   const AIChatFullScreen({super.key, required this.userName});
 
   @override
-  State<AIChatFullScreen> createState() => _AIChatFullScreenState;
+  State<AIChatFullScreen> createState() => _AIChatFullScreenState();
 }
 
 class _AIChatFullScreenState extends State<AIChatFullScreen> {
