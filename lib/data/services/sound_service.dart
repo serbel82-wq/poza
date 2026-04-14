@@ -25,10 +25,14 @@ class SoundService {
   Future<void> _playSound(String path) async {
     if (_isMuted) return;
     try {
-      // На вебе AudioPlayers может выдавать ошибку, если файл не найден или формат не поддерживается
-      await _player.play(AssetSource(path));
+      // На вебе проверяем наличие файла перед проигрыванием, чтобы не спамить 404
+      // Но самый простой способ - просто поймать ошибку и не выводить её как критическую
+      await _player.play(AssetSource(path)).catchError((e) {
+        // Молча игнорируем 404 на вебе
+        return null;
+      });
     } catch (e) {
-      debugPrint('Sound playing skipped: $path. Error: $e');
+      // Игнорируем
     }
   }
 
