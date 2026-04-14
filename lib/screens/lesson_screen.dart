@@ -8,6 +8,7 @@ import '../data/services/gamification_service.dart';
 import '../data/services/sound_service.dart';
 import '../widgets/task_widget.dart';
 import '../widgets/gamification_widgets.dart';
+import '../widgets/premium_animations.dart';
 import '../app_routes.dart';
 
 class LessonScreen extends StatefulWidget {

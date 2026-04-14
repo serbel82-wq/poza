@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:ui'; // Необходим для ImageFilter
 
 class PremiumAnimations {
   static const Duration fast = Duration(milliseconds: 200);
@@ -36,7 +37,7 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 10),
       vsync: this,
     );
     if (widget.animate) {
@@ -100,7 +101,7 @@ class GlowEffect extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.6),
+            color: color.withOpacity(0.4),
             blurRadius: blurRadius,
             spreadRadius: spreadRadius,
           ),
@@ -108,88 +109,6 @@ class GlowEffect extends StatelessWidget {
       ),
       child: child,
     );
-  }
-}
-
-class ShimmerEffect extends StatefulWidget {
-  final Widget child;
-  final Color? baseColor;
-  final Color? highlightColor;
-  final Duration duration;
-
-  const ShimmerEffect({
-    super.key,
-    required this.child,
-    this.baseColor,
-    this.highlightColor,
-    this.duration = const Duration(milliseconds: 1500),
-  });
-
-  @override
-  State<ShimmerEffect> createState() => _ShimmerEffectState();
-}
-
-class _ShimmerEffectState extends State<ShimmerEffect>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final baseColor = widget.baseColor ?? Colors.grey.shade300;
-    final highlightColor = widget.highlightColor ?? Colors.grey.shade100;
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (bounds) {
-            return LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                baseColor,
-                highlightColor,
-                baseColor,
-              ],
-              stops: [
-                0.0,
-                _controller.value,
-                1.0,
-              ],
-              transform: const SlidingGradientTransform(0),
-            ).createShader(bounds);
-          },
-          blendMode: BlendMode.srcATop,
-          child: widget.child,
-        );
-      },
-    );
-  }
-}
-
-class SlidingGradientTransform extends GradientTransform {
-  final double slidePercent;
-
-  const SlidingGradientTransform(this.slidePercent);
-
-  @override
-  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    return Matrix4.identity()..translate(bounds.width * slidePercent);
   }
 }
 
@@ -221,7 +140,7 @@ class _PulseAnimationState extends State<PulseAnimation>
       duration: widget.duration,
       vsync: this,
     );
-    _animation = Tween<double>(begin: 1.0, end: 1.1).animate(
+    _animation = Tween<double>(begin: 1.0, end: 1.08).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
     if (widget.animate) {
@@ -245,40 +164,6 @@ class _PulseAnimationState extends State<PulseAnimation>
           child: widget.child,
         );
       },
-    );
-  }
-}
-
-class ParallaxCard extends StatelessWidget {
-  final Widget child;
-  final double height;
-  final double? parallaxOffset;
-
-  const ParallaxCard({
-    super.key,
-    required this.child,
-    this.height = 200,
-    this.parallaxOffset,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: child,
-      ),
     );
   }
 }
@@ -349,12 +234,14 @@ class FloatingWidget extends StatefulWidget {
   final Widget child;
   final double floatDistance;
   final Duration duration;
+  final bool animate;
 
   const FloatingWidget({
     super.key,
     required this.child,
     this.floatDistance = 10,
     this.duration = const Duration(milliseconds: 2000),
+    this.animate = true,
   });
 
   @override
@@ -372,11 +259,15 @@ class _FloatingWidgetState extends State<FloatingWidget>
     _controller = AnimationController(
       duration: widget.duration,
       vsync: this,
-    )..repeat(reverse: true);
+    );
     _animation = Tween<double>(
       begin: -widget.floatDistance / 2,
       end: widget.floatDistance / 2,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    
+    if (widget.animate) {
+      _controller.repeat(reverse: true);
+    }
   }
 
   @override
@@ -391,218 +282,11 @@ class _FloatingWidgetState extends State<FloatingWidget>
       animation: _animation,
       builder: (context, child) {
         return Transform.translate(
-          offset: Offset(0, _animation.value),
+          offset: Offset(0, widget.animate ? _animation.value : 0),
           child: widget.child,
         );
       },
     );
-  }
-}
-
-class BlurReveal extends StatefulWidget {
-  final Widget child;
-  final double blurAmount;
-  final Duration duration;
-  final bool show;
-
-  const BlurReveal({
-    super.key,
-    required this.child,
-    this.blurAmount = 10,
-    this.duration = const Duration(milliseconds: 500),
-    this.show = true,
-  });
-
-  @override
-  State<BlurReveal> createState() => _BlurRevealState();
-}
-
-class _BlurRevealState extends State<BlurReveal>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    );
-    _animation = Tween<double>(
-      begin: widget.blurAmount,
-      end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    if (widget.show) {
-      _controller.forward();
-    }
-  }
-
-  @override
-  void didUpdateWidget(BlurReveal oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.show != oldWidget.show) {
-      if (widget.show) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return ImageFiltered(
-          imageFilter: ColorFilter.mode(
-            Colors.transparent,
-            BlendMode.srcOver,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(
-                      0.1 * (1 - _animation.value / widget.blurAmount)),
-                  blurRadius: _animation.value * 2,
-                ),
-              ],
-            ),
-            child: widget.child,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class ParticleEffect extends StatefulWidget {
-  final Color color;
-  final int particleCount;
-  final Widget child;
-
-  const ParticleEffect({
-    super.key,
-    required this.color,
-    this.particleCount = 20,
-    required this.child,
-  });
-
-  @override
-  State<ParticleEffect> createState() => _ParticleEffectState();
-}
-
-class _ParticleEffectState extends State<ParticleEffect>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late List<_Particle> _particles;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 3),
-      vsync: this,
-    )..repeat();
-
-    final random = math.Random();
-    _particles = List.generate(widget.particleCount, (index) {
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: random.nextDouble() * 4 + 2,
-        speed: random.nextDouble() * 0.5 + 0.5,
-        opacity: random.nextDouble() * 0.5 + 0.3,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        widget.child,
-        Positioned.fill(
-          child: IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: _ParticlePainter(
-                    particles: _particles,
-                    progress: _controller.value,
-                    color: widget.color,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Particle {
-  final double x;
-  final double y;
-  final double size;
-  final double speed;
-  final double opacity;
-
-  _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.speed,
-    required this.opacity,
-  });
-}
-
-class _ParticlePainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double progress;
-  final Color color;
-
-  _ParticlePainter({
-    required this.particles,
-    required this.progress,
-    required this.color,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final particle in particles) {
-      final paint = Paint()
-        ..color = color.withOpacity(particle.opacity * (1 - progress))
-        ..style = PaintingStyle.fill;
-
-      final x = (particle.x + progress * particle.speed) % 1.0 * size.width;
-      final y = (particle.y + progress * 0.2) % 1.0 * size.height;
-
-      canvas.drawCircle(Offset(x, y), particle.size, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticlePainter oldDelegate) {
-    return oldDelegate.progress != progress;
   }
 }
 
@@ -630,23 +314,7 @@ class PremiumButton extends StatefulWidget {
 
 class _PremiumButtonState extends State<PremiumButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
   bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -660,60 +328,54 @@ class _PremiumButtonState extends State<PremiumButton>
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.isLoading ? null : widget.onPressed,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          final scale = _isPressed ? 0.95 : 1.0;
-          return Transform.scale(
-            scale: scale,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [startColor, endColor],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: startColor.withOpacity(0.4),
-                    blurRadius: _isPressed ? 5 : 15,
-                    offset: Offset(0, _isPressed ? 2 : 5),
-                  ),
-                ],
-              ),
-              child: widget.isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (widget.icon != null) ...[
-                          Icon(widget.icon, color: Colors.white, size: 20),
-                          const SizedBox(width: 8),
-                        ],
-                        Text(
-                          widget.text,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
+      child: Transform.scale(
+        scale: _isPressed ? 0.95 : 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [startColor, endColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          );
-        },
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: startColor.withOpacity(0.4),
+                blurRadius: _isPressed ? 5 : 15,
+                offset: Offset(0, _isPressed ? 2 : 5),
+              ),
+            ],
+          ),
+          child: widget.isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (widget.icon != null) ...[
+                      Icon(widget.icon, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      widget.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
@@ -796,33 +458,6 @@ class NeonText extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class AnimatedCounter extends StatelessWidget {
-  final int value;
-  final TextStyle? style;
-  final Duration duration;
-
-  const AnimatedCounter({
-    super.key,
-    required this.value,
-    this.style,
-    this.duration = const Duration(milliseconds: 500),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<int>(
-      tween: IntTween(begin: 0, end: value),
-      duration: duration,
-      builder: (context, value, child) {
-        return Text(
-          value.toString(),
-          style: style,
-        );
-      },
     );
   }
 }
